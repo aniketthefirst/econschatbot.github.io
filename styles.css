@@ -1,0 +1,101 @@
+/* Dark Mode */
+body {
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #1e1e1e; /* Dark Background */
+    color: #ffffff; /* White Text */
+}
+
+/* Chat Container */
+.chat-container {
+    width: 900px; /* 3x original width */
+    height: 800px; /* 2x original height */
+    background: #2c2c2c; /* Darker Grey Background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between; /* Distributes space within the container */
+}
+
+/* Chatbox Styling */
+#chatbox {
+    width: 100%;
+    height: 400px;
+    overflow-y: auto;
+    border-bottom: 1px solid #444; /* Subtle Border */
+    padding-bottom: 10px;
+    font-size: 18px;
+    flex-grow: 1; /* Allows the chatbox to fill available space */
+    margin-bottom: 10px; /* Adds space before input fields */
+}
+
+/* Bot Messages (No Box) */
+.bot-text {
+    color: #ffffff; /* White Text */
+    padding: 8px;
+    margin: 5px 0;
+    font-size: 18px;
+    max-width: 60%
+}
+
+.user-text {
+    background: #464646;
+    color: rgb(255, 255, 255);
+    text-align: left; 
+    padding: 12px;
+    margin: 8px;
+    border-radius: 8px;
+    font-size: 18px;
+    
+    align-self: flex-end;
+    margin-left: auto;
+    
+    max-width: 55%; 
+    width: fit-content; 
+    word-wrap: break-word; 
+    overflow-wrap: break-word; 
+}
+
+/* Input and Button Container */
+.input-container {
+    width: 100%;
+    display: flex; /* Flexbox for side-by-side alignment */
+}
+
+/* Input and Button Styling */
+input {
+    flex: 1; /* Take the remaining space */
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 5px 0 0 5px; /* Round left corners only */
+    background: #333; /* Darker Input */
+    color: white;
+    border: 1px solid #555;
+    border-right: none; /* No right border */
+    outline: none;
+}
+
+button {
+    width: 60px; /* Fixed width for button */
+    padding: 12px;
+    font-size: 18px;
+    border-radius: 0 5px 5px 0; /* Round right corners only */
+    background: #000000;
+    color: white;
+    border: 1px solid #555; /* Match input border */
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+button:hover {
+    background: #353535;
+}
+
