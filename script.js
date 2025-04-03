@@ -84,10 +84,10 @@ function sendMessage() {
   
       if (similarity >= 0.6) {
         streakCounter++; 
-        botResponse = `✅ Cold shit! The term was indeed "${correctTerm}".\n Streak: ${streakCounter} 🔥`;
+        botResponse = `✅ Good answer! The term was indeed "${correctTerm}". \n Streak: ${streakCounter} 🔥`;
       } else {
         streakCounter = 0; 
-        botResponse = `❌ That's wrong bruh! The correct term was "${correctTerm}". \n Better luck next time! 😜`;
+        botResponse = `❌ That's wrong! The correct term was "${correctTerm}". \n Better luck next time!`;
       }
     } else if (userInput === "ask") {
       let keys = Object.keys(responses);
@@ -107,14 +107,14 @@ function sendMessage() {
       chatbox.appendChild(botMessage);
     }
   
-
+    // Clear input field
     document.getElementById("userInput").value = "";
   
-
+    // Scroll to bottom
     chatbox.scrollTop = chatbox.scrollHeight;
   }
   
-
+  // Function to calculate Levenshtein Distance
   function levenshteinDistance(str1, str2) {
     let len1 = str1.length, len2 = str2.length;
     let dp = Array(len1 + 1).fill(null).map(() => Array(len2 + 1).fill(0));
@@ -126,9 +126,9 @@ function sendMessage() {
       for (let j = 1; j <= len2; j++) {
         let cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
         dp[i][j] = Math.min(
-          dp[i - 1][j] + 1,  
-          dp[i][j - 1] + 1,   
-          dp[i - 1][j - 1] + cost 
+          dp[i - 1][j] + 1,   // Deletion
+          dp[i][j - 1] + 1,   // Insertion
+          dp[i - 1][j - 1] + cost // Substitution
         );
       }
     }
