@@ -126,9 +126,9 @@ function sendMessage() {
       for (let j = 1; j <= len2; j++) {
         let cost = str1[i - 1] === str2[j - 1] ? 0 : 1;
         dp[i][j] = Math.min(
-          dp[i - 1][j] + 1,   // Deletion
-          dp[i][j - 1] + 1,   // Insertion
-          dp[i - 1][j - 1] + cost // Substitution
+          dp[i - 1][j] + 1,  
+          dp[i][j - 1] + 1,   
+          dp[i - 1][j - 1] + cost 
         );
       }
     }
