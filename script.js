@@ -84,10 +84,10 @@ function sendMessage() {
   
       if (similarity >= 0.6) {
         streakCounter++; 
-        botResponse = `✅ Cold shit! The term was indeed "${correctTerm}". Streak: ${streakCounter} 🔥`;
+        botResponse = `✅ Cold shit! The term was indeed "${correctTerm}".\n Streak: ${streakCounter} 🔥`;
       } else {
         streakCounter = 0; 
-        botResponse = `❌ That's wrong bruh! The correct term was "${correctTerm}". Better luck next time! 😜`;
+        botResponse = `❌ That's wrong bruh! The correct term was "${correctTerm}". \n Better luck next time! 😜`;
       }
     } else if (userInput === "ask") {
       let keys = Object.keys(responses);
