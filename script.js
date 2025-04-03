@@ -158,7 +158,7 @@ function sendMessage() {
       return `Did you mean "${closestMatch}"? 🤔 \n\n${responses[closestMatch]}`;
     }
     
-    return "Are you sure that's a thing bro? Check if you even added it to my list 💀 or try again, maybe I couldn't spot your mistake";
+    return "Are you sure that's a thing? Check if you even added it to my list 💀 or try again, maybe I couldn't spot your mistake";
   }
   
   document.getElementById("userInput").addEventListener("keypress", function(event) {
