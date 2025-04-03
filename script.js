@@ -107,14 +107,14 @@ function sendMessage() {
       chatbox.appendChild(botMessage);
     }
   
-    // Clear input field
+
     document.getElementById("userInput").value = "";
   
-    // Scroll to bottom
+
     chatbox.scrollTop = chatbox.scrollHeight;
   }
   
-  // Function to calculate Levenshtein Distance
+
   function levenshteinDistance(str1, str2) {
     let len1 = str1.length, len2 = str2.length;
     let dp = Array(len1 + 1).fill(null).map(() => Array(len2 + 1).fill(0));
