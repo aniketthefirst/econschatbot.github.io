@@ -3,19 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple AI Chatbot</title>
+    <title>Study Bot</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="chat-container">
+        <!-- Header with mode toggle -->
+        <div class="header">
+            <button id="switchBot" class="toggle-btn">Switch to Science</button>
+            <div id="streakDisplay">🔥 <span id="streakCount">0</span></div>
+        </div>
+
+        <!-- Chat messages -->
         <div id="chatbox">
-            <p class="bot-text">What economic term are you thinking about? 🤓</p>
+            <div class="welcome-message">
+                <p>You are on Economics 📊</p>
+                <p>Hello! Which terms can I help you with today?</p>
+                <p>If there's nothing specific, send <strong>'ask'</strong> to get quizzed!</p>
+            </div>
         </div>
+        <div id="typing-indicator" style="display: none;">
+            🤖 AI is typing<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+        </div>        
+        <!-- Input area -->
         <div class="input-container">
-            <input id="userInput" type="text" placeholder="Type a message...">
-            <button id="sendButton">💬</button>
+            <input id="userInput" type="text" placeholder="Type a message..." autocomplete="off">
+            <button id="sendButton">Send</button>
         </div>
-    </div>    
+    </div>
     <script src="script.js"></script>
 </body>
 </html>

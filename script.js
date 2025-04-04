@@ -1,11 +1,29 @@
+// ===== CONFIGURATION =====
+const SIMILARITY_THRESHOLD = 0.6; // 60% match required
+let currentBot = "economics"; // 'economics' or 'science'
 let waitingForAnswer = false;
 let correctTerm = "";
-let streakCounter = 0;
 
-let responses = {
-  "hi": "hello",
-  "oh": "What's up?",
-  "nothing": "Aight lets hop on econs then. Type 'ask' if you want to test yourself.",
+// Store data for both bots
+const botData = {
+  economics: {
+    streak: 0,
+    chatHistory: [{
+      html: "📊 Economics mode activated!<br>Type terms or <strong>'ask'</strong> to test yourself.",
+      className: "bot-text"
+    }]
+  },
+  science: {
+    streak: 0,
+    chatHistory: [{
+      html: "🔬 Science mode activated!<br>Type terms or <strong>'ask'</strong> to test yourself.",
+      className: "bot-text"
+    }]
+  }
+};
+
+// Economics Knowledge Base
+const economicsResponses = {
   "opportunity cost": "The next best alternative forgone when making a decision.",
   "consumption": "The buying of goods and services.",
   "economic goods": "Goods with an associated opportunity cost.",
@@ -25,7 +43,6 @@ let responses = {
   "supply": "The amount of a good/service that a producer is willing and able to produce at a given price at a certain time.",
   "market demand": "Total horizontal summation of the willingness and ability of consumers to purchase a good/service.",
   "government intervention": "Government action to correct market failure.",
-  "market": "Where buyers and sellers exchange goods and services at a particular price.",
   "individual supply": "The amount of a good/service one producer is willing and able to supply.",
   "ped": "The responsiveness of demand to a change in price.",
   "pes": "The responsiveness of quantity supplied to a change in price.",
@@ -66,80 +83,200 @@ let responses = {
   "productivity agreement": "Employers increasing pay in exchange for higher worker output.",
   "primary sector": "The extraction of raw materials and natural resources",
   "secondary sector": "Manufactures goods and processes raw materials",
-  "tertiary sector": "Provides service to it's customers"
+  "tertiary sector": "Provides service to it's customers", 
 };
 
+// Science Knowledge Base
+const scienceResponses = {
+  // Add science terms here if needed
+};
+
+// ===== CORE FUNCTIONS =====
+
+// Get current response database
+function getCurrentResponses() {
+  return currentBot === "economics" ? economicsResponses : scienceResponses;
+}
+
+// Calculate similarity between two strings
+function calculateSimilarity(input, correct) {
+  const distance = levenshteinDistance(input, correct);
+  const maxLength = Math.max(input.length, correct.length);
+  return maxLength > 0 ? 1 - (distance / maxLength) : 0;
+}
+
+// Check if answer is correct (with typo tolerance)
+function checkAnswer(userInput, correctTerm) {
+  const responses = getCurrentResponses();
+
+  // Direct match check
+  if (responses[userInput] !== undefined) {
+    return userInput === correctTerm;
+  }
+  
+  // Fuzzy match fallback
+  const similarity = calculateSimilarity(userInput, correctTerm);
+  return similarity >= SIMILARITY_THRESHOLD;
+}
+
+// Switch between economics and science modes
+function switchBot() {
+  // Save current chat before switching
+  saveCurrentChat();
+  
+  // Toggle bot mode
+  currentBot = currentBot === "economics" ? "science" : "economics";
+  document.getElementById("switchBot").textContent = 
+    `Switch to ${currentBot === "economics" ? "Science" : "Economics"}`;
+  
+  // Reset quiz state
+  waitingForAnswer = false;
+  
+  // Load the other bot's chat
+  restoreChat();
+  updateStreak();
+}
+
+// Save current chat to history
+function saveCurrentChat() {
+  const chatbox = document.getElementById("chatbox");
+  botData[currentBot].chatHistory = Array.from(chatbox.children).map(el => ({
+    html: el.innerHTML,
+    className: el.className
+  }));
+}
+
+// Restore chat from history
+function restoreChat() {
+  const chatbox = document.getElementById("chatbox");
+  chatbox.innerHTML = '';
+  
+  botData[currentBot].chatHistory.forEach(msg => {
+    const message = document.createElement("div");
+    message.className = msg.className;
+    message.innerHTML = msg.html;
+    chatbox.appendChild(message);
+  });
+  
+  scrollChatbox();
+}
+
+// Handle message sending
 function sendMessage() {
-  let inputField = document.getElementById("userInput");
-  let userInput = inputField.value.trim().toLowerCase();
+  const inputField = document.getElementById("userInput");
+  const userInput = inputField.value.trim().toLowerCase();
+
   if (!userInput) return;
 
   appendMessage(userInput, "user-text");
+
+  const responses = getCurrentResponses();
+  const terms = Object.keys(responses);
 
   let botResponse = "";
 
   if (waitingForAnswer) {
     waitingForAnswer = false;
-    let similarity = 1 - levenshteinDistance(userInput, correctTerm) / Math.max(userInput.length, correctTerm.length);
-    if (similarity >= 0.6) {
-      streakCounter++;
-      botResponse = `✅ Correct! It was "${correctTerm}".\n Streak: ${streakCounter} 🔥`;
+    const closestMatch = findClosestMatch(userInput, [correctTerm]);
+
+    if (closestMatch) {
+      botData[currentBot].streak++;
+      botResponse = `✅ <strong>Correct!</strong> It was "${correctTerm}".<br>🔥 Streak: ${botData[currentBot].streak}`;
     } else {
-      streakCounter = 0;
-      botResponse = `❌ Nope, the answer was "${correctTerm}". Try again!`;
+      botData[currentBot].streak = 0;
+      botResponse = `❌ <strong>That's not right...</strong> <br>The answer was "${correctTerm}".`;
     }
+    updateStreak();
   } else if (userInput === "ask") {
-    let keys = Object.keys(responses);
-    correctTerm = keys[Math.floor(Math.random() * keys.length)];
-    botResponse = `🤔 Guess the term:\n"${responses[correctTerm]}"`;
+    correctTerm = terms[Math.floor(Math.random() * terms.length)];
+    botResponse = `🤔 <strong>Guess the ${currentBot} term:</strong><br>"${responses[correctTerm]}"`;
     waitingForAnswer = true;
   } else {
-    botResponse = getBotResponse(userInput);
+    // NEW: Find closest match when looking up a definition
+    const closestMatch = findClosestMatch(userInput, terms);
+    botResponse = closestMatch
+      ? `📖 <strong>${closestMatch}:</strong> ${responses[closestMatch]}`
+      : `I don't recognize that ${currentBot} term. Try another or type <strong>'ask'</strong> to quiz yourself!`;
   }
 
   appendMessage(botResponse, "bot-text");
   inputField.value = "";
-  document.getElementById("chatbox").scrollTop = document.getElementById("chatbox").scrollHeight;
+  scrollChatbox();
 }
 
-function appendMessage(text, className) {
-  const message = document.createElement("p");
+function findClosestMatch(input, terms) {
+  let closestMatch = "";
+  let minDistance = Infinity;
+
+  for (const term of terms) {
+    const distance = levenshteinDistance(input, term); // Change this line to use 'levenshteinDistance'
+    if (distance < minDistance) {
+      minDistance = distance;
+      closestMatch = term;
+    }
+  }
+
+  return minDistance <= 2 ? closestMatch : null; // Allow small typo tolerance
+}
+
+
+// ===== HELPER FUNCTIONS =====
+
+// Add message to chat
+function appendMessage(content, className) {
+  const message = document.createElement("div");
   message.className = className;
-  message.innerText = text;
+  message.innerHTML = content
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br>');
   document.getElementById("chatbox").appendChild(message);
 }
 
+// Update streak display
+function updateStreak() {
+  document.getElementById("streakCount").textContent = botData[currentBot].streak;
+}
+
+// Scroll chat to bottom
+function scrollChatbox() {
+  const chatbox = document.getElementById("chatbox");
+  chatbox.scrollTop = chatbox.scrollHeight;
+}
+
+// Calculate Levenshtein distance
 function levenshteinDistance(a, b) {
-  const dp = Array.from({ length: a.length + 1 }, () => Array(b.length + 1).fill(0));
-  for (let i = 0; i <= a.length; i++) dp[i][0] = i;
-  for (let j = 0; j <= b.length; j++) dp[0][j] = j;
+  if (!a || !b) return Math.max(a?.length || 0, b?.length || 0);
+  
+  const matrix = Array.from({ length: a.length + 1 }, () => 
+    Array(b.length + 1).fill(0));
+  
+  for (let i = 0; i <= a.length; i++) matrix[i][0] = i;
+  for (let j = 0; j <= b.length; j++) matrix[0][j] = j;
 
   for (let i = 1; i <= a.length; i++) {
     for (let j = 1; j <= b.length; j++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
-      dp[i][j] = Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + cost);
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
     }
   }
-
-  return dp[a.length][b.length];
+  return matrix[a.length][b.length];
 }
 
-function getBotResponse(input) {
-  if (responses[input]) return responses[input];
-
-  let closest = null, minDist = Infinity, threshold = Math.floor(input.length * 0.4);
-  for (let key in responses) {
-    let dist = levenshteinDistance(input, key);
-    if (dist < minDist && dist <= threshold) {
-      minDist = dist;
-      closest = key;
-    }
-  }
-
-  if (closest) return `Did you mean "${closest}"?\n${responses[closest]}`;
-  return "That doesn't seem right 💀 — try again or type 'ask' for a random definition.";
-}
-
-document.getElementById("userInput").addEventListener("keypress", function (event) {
-  if (event.key === "Enter") sendMessage();
+// ===== INITIALIZATION =====
+document.addEventListener("DOMContentLoaded", () => {
+  // Set up event listeners
+  document.getElementById("sendButton").addEventListener("click", sendMessage);
+  document.getElementById("userInput").addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+  document.getElementById("switchBot").addEventListener("click", switchBot);
+  
+  // Initialize UI
+  restoreChat();
+  updateStreak();
 });
+
