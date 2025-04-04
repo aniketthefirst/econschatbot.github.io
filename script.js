@@ -80,7 +80,7 @@ function sendMessage() {
     let similarity = 1 - levenshteinDistance(userInput, correctTerm) / Math.max(userInput.length, correctTerm.length);
     if (similarity >= 0.6) {
       streakCounter++;
-      botResponse = `✅ Correct! It was "${correctTerm}".\n🔥 Streak: ${streakCounter}`;
+      botResponse = `✅ Correct! It was "${correctTerm}".\n Streak: ${streakCounter} 🔥`;
     } else {
       streakCounter = 0;
       botResponse = `❌ Nope, the answer was "${correctTerm}". Try again!`;
@@ -134,7 +134,7 @@ function getBotResponse(input) {
   }
 
   if (closest) return `Did you mean "${closest}"?\n${responses[closest]}`;
-  return "That doesn't seem right 💀 — try again or type 'ask' for a new one.";
+  return "That doesn't seem right 💀 — try again or type 'ask' for a random definition.";
 }
 
 document.getElementById("userInput").addEventListener("keypress", function (event) {
