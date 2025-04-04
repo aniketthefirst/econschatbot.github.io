@@ -3,6 +3,9 @@ let correctTerm = "";
 let streakCounter = 0;
 
 let responses = {
+  "hi": "hello",
+  "oh": "What's up?",
+  "nothing": "Aight lets hop on econs then. Type ask if you want to test yourself.",
   "opportunity cost": "The next best alternative forgone when making a decision.",
   "consumption": "The buying of goods and services.",
   "economic goods": "Goods with an associated opportunity cost.",
